@@ -1,0 +1,15 @@
+#!/usr/bin/env rc
+
+if(test $#* -gt 0) {
+    srcs = $1/*. ^ (c h cc hh cpp hpp go)
+} if not {
+    srcs = *. ^ (c h cc hh cpp hpp go)
+}
+#echo '#' $#srcs files:
+for(src in $srcs) {
+    test -f $src && \
+    sed -f todo.sed $src | awk '
+        BEGIN {src = "" ENVIRON["src"] ":"}
+        /^[0-9]+$/ { print src, $1 }
+       !/^[0-9]+$/ { print } '
+}
