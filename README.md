@@ -18,14 +18,22 @@ There's a plethora of useful things here:
     mkdir -p $HOME/.vim/syntax
     cp vim/syntax/rcshell.vim $HOME/.vim/syntax
 
-
 - bin/* - various useful scripts
 
     mkdir $HOME/bin
     path = ($path $HOME/bin)
     cp bin/* $HOME/bin/
 
-# The Revenge of Plan9
+# Associated Projects
+
+If you enjoy the rc shell, you might also like to try other
+9P applications available inside
+[plan9port](https://github.com/9fans/plan9port).
+
+The [mk](https://9fans.github.io/plan9port/man/man1/mk.html) build system is especially notable.  Also, the [factotum](https://9fans.github.io/plan9port/man/man4/factotum.html)+[secstore](https://9fans.github.io/plan9port/man/man1/secstore.html)+[secstored](https://9fans.github.io/plan9port/man/man1/secstored.html) triad makes a full featured password manager that even has [ssh](https://9fans.github.io/plan9port/man/man1/ssh-agent.html) integration.
+
+
+## The Revenge of Plan9
 
 The push toward reliable containerization technology has made
 modern Linux able to provide many of the key features of Plan9.
