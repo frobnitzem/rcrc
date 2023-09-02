@@ -1,27 +1,28 @@
 #!/bin/bash
-# A shell script to get rc and add it to your path.
-
-set -e
+# This script sets up environment for running the rc shell.
+# After it completes, start a login with "rc -l"
 
 # Will look for rc in $PREFIX/bin and install if not present.
-# Also adds $PREFIX/bin to path and $PREFIX/share/man to MANPATH.
-PREFIX=$HOME
+# Also sets 
+PREFIX="$HOME"
 if [ $# -eq 1 ]; then
     PREFIX="$1"
 fi
 
 get_rc() {
-  dir="`mktemp -d`"
-  cwd="`pwd`"
-  cd "$dir"
-    git clone https://github.com/benavento/rc
-    cd rc
-    mkdir -p "$PREFIX/bin"
-    mkdir -p "$PREFIX/lib"
-    mkdir -p "$PREFIX/share/man/man1"
-    make -j4 install PREFIX="$PREFIX"
-  cd "$cwd"
-  rm -fr "$dir"
+    dir="`mktemp -d`"
+    cwd="`pwd`"
+    cd "$dir"
+	    git clone https://github.com/frobnitzem/rc && \
+	    cd rc && \
+	    mkdir -p "$PREFIX/bin" && \
+	    mkdir -p "$PREFIX/lib" && \
+	    mkdir -p "$PREFIX/share/man/man1" && \
+	    make -j4 install PREFIX="$PREFIX"
+    ret=$?
+    cd "$cwd"
+    rm -fr "$dir"
+    return $ret
 }
 
 # test for functioning rc

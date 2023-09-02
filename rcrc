@@ -1,3 +1,7 @@
+#!/usr/bin/env rc
+# Source this script to provide useful functions for rc.
+
+SHELL=rc
 ps1 = '% '
 tab = '    '
 fn cd {
@@ -18,13 +22,6 @@ fn cd {
 }
 prompt=(`{basename `{pwd}}^$ps1 $tab)
 
-# shift the named variable left by 1
-fn shift_var {
-    var=$1
-    *=$$var
-    shift
-    $var=$*
-}
 fn pushd {
     path_history = (`{pwd} $path_history)
     cd $1
@@ -35,8 +32,64 @@ fn popd {
       echo 'popd: directory stack empty'
     if not {
       cd $path_history(1)
-      shift_var path_history
+      path_history = $path_history(2-)
     }
     echo `{pwd} $path_history
 }
+
+# FIXME: rc is missing control flow: return/break/continue
+# FIXME: rc is missing equivalent of 'disown' / listing of waitpid table.
+# FIXME: rc is missing fg/bg
+#
+# Remove first path matching an argument.
+fn remove_path {
+    _tmp_path = $path
+    _removed = 0
+    path = ()
+    while(! ~ $#_tmp_path 0) {
+        if(~ $_removed 1 || ! ~ $_tmp_path(1) $*) {
+            path = ($path $_tmp_path(1))
+        } if not {
+            _removed = 1
+		}
+		_tmp_path = $_tmp_path(2-)
+    }
+}
+
+# Replace the last virtual env. with the one mentioned
+# by arg $1.  Does not modify venv_history.
+fn swap_venv {
+    if(~ $#VIRTUAL_ENV 1) {
+        remove_path $VIRTUAL_ENV/bin
+    }
+	VIRTUAL_ENV = ()
+    if(~ $#* 1) {
+        VIRTUAL_ENV = `{cd $1 && pwd}
+        if(~ $status '' 0) path = ($VIRTUAL_ENV/bin $path)
+    }
+}
+
+fn activate {
+    if(! ~ $#PYTHONHOME 0) {
+        echo 'You must unset PYTHONHOME to use this function.'
+    } if not {
+		if(~ $#VIRTUAL_ENV 1) {
+			venv_history = ($VIRTUAL_ENV $venv_history)
+		}
+		swap_venv $1
+        if(~ $status '' 0) {
+			echo venv history = $venv_history
+			echo current venv = $VIRTUAL_ENV
+		} if not {
+			deactivate
+		}
+    }
+}
+fn deactivate {
+    swap_venv $venv_history(1)
+    venv_history = $venv_history(2-)
+	echo venv history = $venv_history
+	echo current venv = $VIRTUAL_ENV
+}
+
 test -f $home/profile.rc && . $home/profile.rc
