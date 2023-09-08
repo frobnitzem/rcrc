@@ -1,7 +1,7 @@
 #!/usr/bin/env rc
 # Source this script to provide useful functions for rc.
 
-SHELL=rc
+SHELL=`{which rc}
 ps1 = '% '
 tab = '    '
 fn cd {
