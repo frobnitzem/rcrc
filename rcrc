@@ -62,11 +62,15 @@ fn swap_venv {
     if(~ $#VIRTUAL_ENV 1) {
         remove_path $VIRTUAL_ENV/bin
     }
-	VIRTUAL_ENV = ()
-    if(~ $#* 1) {
-        VIRTUAL_ENV = `{cd $1 && pwd}
+	VIRTUAL_ENV = $1
+    if(~ $VIRTUAL_ENV 1) {
         if(~ $status '' 0) path = ($VIRTUAL_ENV/bin $path)
+        ps1 = ' ('`{basename $VIRTUAL_ENV} ^ ')% '
     }
+    if not {
+        ps1 = '% '
+    }
+    prompt=(`{basename `{pwd}}^$ps1 $tab)
 }
 
 fn activate {
@@ -76,7 +80,7 @@ fn activate {
 		if(~ $#VIRTUAL_ENV 1) {
 			venv_history = ($VIRTUAL_ENV $venv_history)
 		}
-		swap_venv $1
+		swap_venv `{cd $1 && pwd}
         if(~ $status '' 0) {
 			echo venv history = $venv_history
 			echo current venv = $VIRTUAL_ENV
