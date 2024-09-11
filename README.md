@@ -69,3 +69,91 @@ Note especially the following projects:
   somewhere, and need to upload that back to github.
 
 - [additional libraries](https://9p.cat-v.org/implementations)
+
+# HOWTO
+
+1. install plan9port
+
+    then copy plan9port/bin/9 to $home/bin/9
+    and set its PLAN9 accordingly.
+
+## Use Factotum
+
+    9 factotum
+
+Interact with [9p](https://9fans.github.io/plan9port/man/man1/9p.html)
+following [factotum protocol](https://9fans.github.io/plan9port/man/man4/factotum.html).
+
+```
+% 9 9p ls factotum/
+confirm
+conv
+ctl
+log
+needkey
+proto
+rpc
+```
+
+Add a key
+```
+% 9 9p write factotum/ctl
+> key role=client proto=pass service=ssh user=99r dom=ornl !password=12345
+```
+
+Lookup a key
+```
+% 9 9p rdwr factotum/rpc
+> start proto=pass role=client service=ssh user=99r
+< ok / error string
+> read
+< ok 99r 12345
+```
+Note this will return any matching key.
+If no key is present, it may return with, e.g.
+
+    needkey user? !password? proto=pass role=client service=ssh dom=olcf
+
+Sending another `read` will return either `error` or `ok <data>`
+(if the needkey process supplied the needed key),
+as in the following,
+```
+start proto=pass role=client service=ssh dom=olcf
+ok
+read
+needkey user? !password? proto=pass role=client service=ssh dom=olcf
+read
+error pass client nascent: no key found
+start proto=pass role=client service=ssh dom=olcf
+ok
+read
+needkey user? !password? proto=pass role=client service=ssh dom=olcf
+read
+ok a ok
+```
+
+
+Serve a key request:
+```
+% 9 9p rdwr factotum/needkey
+< needkey tag=tagno <template>
+[add key via factotum/ctl]
+> tag=tagno
+```
+
+## Interacting with GNU pinentry
+
+```
+% pinentry -g
+OK Pleased to meet you
+SETPROMPT Password required for code.ornl.gov
+OK
+GETPIN
+D nope
+OK
+GETPIN
+ERR 83886179 Operation cancelled <Pinentry>
+```
+
+Providing "nope" on the first entry and pressing
+"Cancel" on the second.
