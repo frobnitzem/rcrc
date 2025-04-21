@@ -11,6 +11,8 @@ There's a plethora of useful things here:
 
     cp rcrc $HOME/.rcrc
 
+- profile.rc - some other helpful functions (lmod support)
+
 - vim/ - vim plugins to recognize rc scripts
 
     mkdir -p $HOME/.vim/ftdetect

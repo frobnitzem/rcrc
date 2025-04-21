@@ -1,0 +1,29 @@
+# replace csh's setenv commands with equivalent name=value pairs for rc
+# end unsetenv with name=()
+fn fix_csh_setenv {
+  sed -e 's/\\\(.\)/\1/g;' | \
+    sed -n -e 's/^setenv \([^ ]*\) \(.*\);$/\1=''\2'';/p; s/^unsetenv \(.*\);$/\1=();/p;'
+}
+# note: module is not outputting semicolon after unset: `a=()`
+  
+if(~ $LMOD_SYSTEM_NAME old_broken_system) {
+    
+  # latest lmod not present?
+  # rc not supported, pretend to be csh. (sometimes fails)
+  fn module {
+    eval `{$LMOD_CMD csh $* | fix_csh_setenv}
+  }
+
+  fn clearMT {
+    eval `{$LMOD_DIR/clearMT_cmd csh | fix_csh_setenv}
+  }
+} if not {
+
+  fn module {
+    eval `{$LMOD_CMD rc $*}
+  }
+  
+  fn clearMT {
+    eval `{$LMOD_DIR/clearMT_cmd rc}
+  }
+}
